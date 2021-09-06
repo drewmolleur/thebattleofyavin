@@ -1,0 +1,553 @@
+@startuml
+
+title __GAMEENGINE's Class Diagram__\n
+
+  namespace Controller {
+    class Controller.InputEvent {
+    }
+  }
+  
+
+  namespace Controller {
+    class Controller.KeyEventListener {
+    }
+  }
+  
+
+  namespace Controller {
+    class Controller.Main {
+    }
+  }
+  
+
+  namespace Controller {
+    class Controller.MouseEventListener {
+    }
+  }
+  
+
+  namespace Controller {
+    namespace Observer {
+      interface Controller.Observer.Observer {
+      }
+    }
+  }
+  
+
+  namespace Controller {
+    namespace Observer {
+      interface Controller.Observer.Subject {
+      }
+    }
+  }
+  
+
+  namespace Controller {
+    namespace Observer {
+      class Controller.Observer.tieFighterCreateEvent {
+      }
+    }
+  }
+  
+
+  namespace Controller {
+    namespace Observer {
+      class Controller.Observer.tieFighterObserverAddNew {
+      }
+    }
+  }
+  
+
+  namespace Controller {
+    namespace Observer {
+      namespace  {
+        interface Controller.Observer2.Observer2 {
+        }
+      }
+    }
+  }
+  
+
+  namespace Controller {
+    namespace Observer {
+      namespace  {
+        interface Controller.Observer2.Subject2 {
+        }
+      }
+    }
+  }
+  
+
+  namespace Controller {
+    class Controller.PlayerInputEventQueue {
+    }
+  }
+  
+
+  namespace Model {
+    class Model.GameData {
+    }
+  }
+  
+
+  namespace Model {
+    abstract class Model.GameFigure {
+    }
+  }
+  
+
+  namespace Model {
+    namespace Missile {
+      class Model.Missile.Missile {
+      }
+    }
+  }
+  
+
+  namespace Model {
+    namespace Missile {
+      class Model.Missile.MissileAnimExploding {
+      }
+    }
+  }
+  
+
+  namespace Model {
+    namespace Missile {
+      class Model.Missile.MissileAnimShooting {
+      }
+    }
+  }
+  
+
+  namespace Model {
+    namespace Missile {
+      interface Model.Missile.MissileAnimStrategy {
+      }
+    }
+  }
+  
+
+  namespace Model {
+    class Model.MousePointer {
+    }
+  }
+  
+
+  namespace Model {
+    class Model.Shooter {
+    }
+  }
+  
+
+  namespace Model {
+    class Model.Text {
+    }
+  }
+  
+
+  namespace Model {
+    namespace Vader {
+      class Model.Vader.Vader {
+      }
+    }
+  }
+  
+
+  namespace Model {
+    namespace Vader {
+      class Model.Vader.VaderAnimFalling {
+      }
+    }
+  }
+  
+
+  namespace Model {
+    namespace Vader {
+      class Model.Vader.VaderAnimFlying {
+      }
+    }
+  }
+  
+
+  namespace Model {
+    namespace Vader {
+      interface Model.Vader.VaderAnimStrategy {
+      }
+    }
+  }
+  
+
+  namespace Model {
+    namespace Vader {
+      namespace laster {
+        class Model.VaderBlaster.VaderBlaster {
+        }
+      }
+    }
+  }
+  
+
+  namespace Model {
+    namespace Vader {
+      namespace laster {
+        class Model.VaderBlaster.VaderBlasterAnimExploding {
+        }
+      }
+    }
+  }
+  
+
+  namespace Model {
+    namespace Vader {
+      namespace laster {
+        class Model.VaderBlaster.VaderBlasterAnimShooting {
+        }
+      }
+    }
+  }
+  
+
+  namespace Model {
+    namespace Vader {
+      namespace laster {
+        interface Model.VaderBlaster.VaderBlasterAnimStrategy {
+        }
+      }
+    }
+  }
+  
+
+  namespace Model {
+    namespace tieFighter {
+      class Model.tieFighter.tieFighter {
+      }
+    }
+  }
+  
+
+  namespace Model {
+    namespace tieFighter {
+      class Model.tieFighter.tieFighterAnimFalling {
+      }
+    }
+  }
+  
+
+  namespace Model {
+    namespace tieFighter {
+      class Model.tieFighter.tieFighterAnimFlying {
+      }
+    }
+  }
+  
+
+  namespace Model {
+    namespace tieFighter {
+      interface Model.tieFighter.tieFighterAnimStrategy {
+      }
+    }
+  }
+  
+
+  namespace Model {
+    namespace tieFighter {
+      namespace laster {
+        class Model.tieFighterBlaster.tieFighterBlaster {
+        }
+      }
+    }
+  }
+  
+
+  namespace Model {
+    namespace tieFighter {
+      namespace laster {
+        class Model.tieFighterBlaster.tieFighterBlasterAnimExploding {
+        }
+      }
+    }
+  }
+  
+
+  namespace Model {
+    namespace tieFighter {
+      namespace laster {
+        class Model.tieFighterBlaster.tieFighterBlasterAnimShooting {
+        }
+      }
+    }
+  }
+  
+
+  namespace Model {
+    namespace tieFighter {
+      namespace laster {
+        interface Model.tieFighterBlaster.tieFighterBlasterAnimStrategy {
+        }
+      }
+    }
+  }
+  
+
+  namespace View {
+    interface View.BackgroundState {
+    }
+  }
+  
+
+  namespace View {
+    class View.BackgroundState_2dGameplay_Defense {
+    }
+  }
+  
+
+  namespace View {
+    class View.BackgroundState_2dGameplay_Offense {
+    }
+  }
+  
+
+  namespace View {
+    class View.BackgroundState_2dGameplay_Repair {
+    }
+  }
+  
+
+  namespace View {
+    class View.BackgroundState_3dGameplay_UseTheForce {
+    }
+  }
+  
+
+  namespace View {
+    class View.BackgroundState_Outcome_YouLose {
+    }
+  }
+  
+
+  namespace View {
+    class View.BackgroundState_Outcome_YouWin {
+    }
+  }
+  
+
+  namespace View {
+    class View.BackgroundState_StartMenu_Dashboard {
+    }
+  }
+  
+
+  namespace View {
+    class View.BackgroundState_StartMenu_Help {
+    }
+  }
+  
+
+  namespace View {
+    class View.BackgroundState_StartMenu_Intro {
+    }
+  }
+  
+
+  namespace View {
+    class View.BackgroundState_StartMenu_Loading {
+    }
+  }
+  
+
+  namespace View {
+    class View.BackgroundState_Transition_BackUp {
+    }
+  }
+  
+
+  namespace View {
+    class View.BackgroundState_Transition_Offense {
+    }
+  }
+  
+
+  namespace View {
+    class View.BackgroundState_Transition_Offense_Completed {
+    }
+  }
+  
+
+  namespace View {
+    class View.CountDown {
+    }
+  }
+  
+
+  namespace View {
+    class View.CountDown_Defense {
+    }
+  }
+  
+
+  namespace View {
+    class View.CountDown_DisableButton {
+    }
+  }
+  
+
+  namespace View {
+    class View.CountDown_Help {
+    }
+  }
+  
+
+  namespace View {
+    class View.CountDown_ShowButtons {
+    }
+  }
+  
+
+  namespace View {
+    class View.CountDown_UseTheForce {
+    }
+  }
+  
+
+  namespace View {
+    class View.CountDown_VaderBlaster {
+    }
+  }
+  
+
+  namespace View {
+    class View.CountDown_tieFighterBlaster {
+    }
+  }
+  
+
+  namespace View {
+    interface View.HealthState {
+    }
+  }
+  
+
+  namespace View {
+    class View.HealthState_xWing_1 {
+    }
+  }
+  
+
+  namespace View {
+    class View.HealthState_xWing_2 {
+    }
+  }
+  
+
+  namespace View {
+    class View.HealthState_xWing_3 {
+    }
+  }
+  
+
+  namespace View {
+    class View.HealthState_xWing_4 {
+    }
+  }
+  
+
+  namespace View {
+    class View.HealthState_xWing_5 {
+    }
+  }
+  
+
+  namespace View {
+    class View.HealthState_xWing_6 {
+    }
+  }
+  
+
+  namespace View {
+    class View.MyCanvas {
+    }
+  }
+  
+
+  namespace View {
+    class View.MyWindow {
+    }
+  }
+  
+
+  namespace View {
+    class View.StartScreen {
+    }
+  }
+  
+
+  Controller.KeyEventListener -up-|> java.awt.event.KeyAdapter
+  Controller.MouseEventListener -up-|> java.awt.event.MouseAdapter
+  Controller.Observer.tieFighterCreateEvent -up-|> java.util.EventObject
+  Controller.Observer.tieFighterObserverAddNew .up.|> Controller.Observer.Observer
+  Model.Missile.Missile -up-|> Model.GameFigure
+  Model.Missile.Missile o-- Model.Missile.MissileAnimStrategy : animStrategy
+  Model.Missile.MissileAnimExploding .up.|> Model.Missile.MissileAnimStrategy
+  Model.Missile.MissileAnimExploding o-- Model.Missile.Missile : contxt
+  Model.Missile.MissileAnimShooting .up.|> Model.Missile.MissileAnimStrategy
+  Model.Missile.MissileAnimShooting o-- Model.Missile.Missile : context
+  Model.MousePointer -up-|> Model.GameFigure
+  Model.Shooter -up-|> Model.GameFigure
+  Model.Text -up-|> Model.GameFigure
+  Model.Vader.Vader .up.|> Controller.Observer.Subject
+  Model.Vader.Vader -up-|> Model.GameFigure
+  Model.Vader.Vader o-- Model.Vader.VaderAnimStrategy : animStrategy
+  Model.Vader.VaderAnimFalling .up.|> Model.Vader.VaderAnimStrategy
+  Model.Vader.VaderAnimFalling o-- Model.Vader.Vader : context
+  Model.Vader.VaderAnimFlying .up.|> Model.Vader.VaderAnimStrategy
+  Model.Vader.VaderAnimFlying o-- Model.Vader.Vader : context
+  Model.VaderBlaster.VaderBlaster -up-|> Model.GameFigure
+  Model.VaderBlaster.VaderBlaster o-- Model.VaderBlaster.VaderBlasterAnimStrategy : animStrategy
+  Model.VaderBlaster.VaderBlasterAnimExploding .up.|> Model.VaderBlaster.VaderBlasterAnimStrategy
+  Model.VaderBlaster.VaderBlasterAnimExploding o-- Model.VaderBlaster.VaderBlaster : context
+  Model.VaderBlaster.VaderBlasterAnimShooting .up.|> Model.VaderBlaster.VaderBlasterAnimStrategy
+  Model.VaderBlaster.VaderBlasterAnimShooting o-- Model.VaderBlaster.VaderBlaster : context
+  Model.tieFighter.tieFighter .up.|> Controller.Observer.Subject
+  Model.tieFighter.tieFighter -up-|> Model.GameFigure
+  Model.tieFighter.tieFighter o-- Model.tieFighter.tieFighterAnimStrategy : animStrategy
+  Model.tieFighter.tieFighterAnimFalling .up.|> Model.tieFighter.tieFighterAnimStrategy
+  Model.tieFighter.tieFighterAnimFalling o-- Model.tieFighter.tieFighter : context
+  Model.tieFighter.tieFighterAnimFlying .up.|> Model.tieFighter.tieFighterAnimStrategy
+  Model.tieFighter.tieFighterAnimFlying o-- Model.tieFighter.tieFighter : context
+  Model.tieFighterBlaster.tieFighterBlaster -up-|> Model.GameFigure
+  Model.tieFighterBlaster.tieFighterBlaster o-- Model.tieFighterBlaster.tieFighterBlasterAnimStrategy : animStrategy
+  Model.tieFighterBlaster.tieFighterBlasterAnimExploding .up.|> Model.tieFighterBlaster.tieFighterBlasterAnimStrategy
+  Model.tieFighterBlaster.tieFighterBlasterAnimExploding o-- Model.tieFighterBlaster.tieFighterBlaster : context
+  Model.tieFighterBlaster.tieFighterBlasterAnimShooting .up.|> Model.tieFighterBlaster.tieFighterBlasterAnimStrategy
+  Model.tieFighterBlaster.tieFighterBlasterAnimShooting o-- Model.tieFighterBlaster.tieFighterBlaster : context
+  View.BackgroundState_2dGameplay_Defense .up.|> View.BackgroundState
+  View.BackgroundState_2dGameplay_Offense .up.|> View.BackgroundState
+  View.BackgroundState_2dGameplay_Repair .up.|> View.BackgroundState
+  View.BackgroundState_3dGameplay_UseTheForce .up.|> View.BackgroundState
+  View.BackgroundState_Outcome_YouLose .up.|> View.BackgroundState
+  View.BackgroundState_Outcome_YouWin .up.|> View.BackgroundState
+  View.BackgroundState_StartMenu_Dashboard .up.|> View.BackgroundState
+  View.BackgroundState_StartMenu_Help .up.|> View.BackgroundState
+  View.BackgroundState_StartMenu_Intro .up.|> View.BackgroundState
+  View.BackgroundState_StartMenu_Loading .up.|> View.BackgroundState
+  View.BackgroundState_Transition_BackUp .up.|> View.BackgroundState
+  View.BackgroundState_Transition_Offense .up.|> View.BackgroundState
+  View.BackgroundState_Transition_Offense_Completed .up.|> View.BackgroundState
+  View.HealthState_xWing_5 .up.|> View.HealthState
+  View.MyCanvas -up-|> javax.swing.JPanel
+  View.MyCanvas o-- View.BackgroundState : backgroundState
+  View.MyCanvas o-- View.HealthState : healthState
+  View.MyWindow -up-|> javax.swing.JFrame
+  View.MyWindow o-- View.MyCanvas : canvas
+  View.StartScreen -up-|> Model.GameFigure
+
+
+right footer
+
+
+PlantUML diagram generated by SketchIt! (https://bitbucket.org/pmesmeur/sketch.it)
+For more information about this tool, please contact philippe.mesmeur@gmail.com
+endfooter
+
+@enduml

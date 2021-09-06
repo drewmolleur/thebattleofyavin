@@ -1,0 +1,392 @@
+@startuml
+
+title __VIEW's Class Diagram__\n
+
+  namespace View {
+    interface View.BackgroundState {
+        {abstract} + goNext()
+        {abstract} + render()
+    }
+  }
+  
+
+  namespace View {
+    class View.BackgroundState_2dGameplay_Defense {
+        {static} + health : BufferedImage
+        ~ icon : ImageIcon
+        ~ image : Image
+        + goNext()
+        + render()
+    }
+  }
+  
+
+  namespace View {
+    class View.BackgroundState_2dGameplay_Offense {
+        {static} + health : BufferedImage
+        ~ icon : ImageIcon
+        ~ image : Image
+        + goNext()
+        + render()
+    }
+  }
+  
+
+  namespace View {
+    class View.BackgroundState_2dGameplay_Repair {
+        + goNext()
+        + render()
+    }
+  }
+  
+
+  namespace View {
+    class View.BackgroundState_3dGameplay_UseTheForce {
+        ~ icon : ImageIcon
+        ~ image : Image
+        + goNext()
+        + render()
+    }
+  }
+  
+
+  namespace View {
+    class View.BackgroundState_Outcome_YouLose {
+        ~ icon : ImageIcon
+        ~ image : Image
+        + goNext()
+        + render()
+    }
+  }
+  
+
+  namespace View {
+    class View.BackgroundState_Outcome_YouWin {
+        ~ icon : ImageIcon
+        ~ image : Image
+        + goNext()
+        + render()
+    }
+  }
+  
+
+  namespace View {
+    class View.BackgroundState_StartMenu_Dashboard {
+        + img : BufferedImage
+        ~ icon : ImageIcon
+        ~ image : Image
+        + BackgroundState_StartMenu_Dashboard()
+        + goNext()
+        + render()
+    }
+  }
+  
+
+  namespace View {
+    class View.BackgroundState_StartMenu_Help {
+        {static} + help : BufferedImage
+        ~ icon : ImageIcon
+        ~ image : Image
+        + goNext()
+        + render()
+    }
+  }
+  
+
+  namespace View {
+    class View.BackgroundState_StartMenu_Intro {
+        + img : BufferedImage
+        ~ icon : ImageIcon
+        ~ image : Image
+        + BackgroundState_StartMenu_Intro()
+        + goNext()
+        + render()
+    }
+  }
+  
+
+  namespace View {
+    class View.BackgroundState_StartMenu_Loading {
+        ~ icon : ImageIcon
+        ~ image : Image
+        + goNext()
+        + render()
+    }
+  }
+  
+
+  namespace View {
+    class View.BackgroundState_Transition_BackUp {
+        ~ icon : ImageIcon
+        ~ image : Image
+        + goNext()
+        + render()
+    }
+  }
+  
+
+  namespace View {
+    class View.BackgroundState_Transition_Offense {
+        ~ icon : ImageIcon
+        ~ image : Image
+        + goNext()
+        + render()
+    }
+  }
+  
+
+  namespace View {
+    class View.BackgroundState_Transition_Offense_Completed {
+        ~ icon : ImageIcon
+        ~ image : Image
+        + goNext()
+        + render()
+    }
+  }
+  
+
+  namespace View {
+    class View.CountDown {
+        ~ timer : Timer
+        + CountDown()
+    }
+  }
+  
+
+  namespace View {
+    class View.CountDown.CountDownTask {
+        + run()
+    }
+  }
+  
+
+  namespace View {
+    class View.CountDown_Defense {
+        ~ timer : Timer
+        + CountDown_Defense()
+    }
+  }
+  
+
+  namespace View {
+    class View.CountDown_Defense.CountDownTask {
+        + run()
+    }
+  }
+  
+
+  namespace View {
+    class View.CountDown_DisableButton {
+        {static} + timer : Timer
+        + CountDown_DisableButton()
+    }
+  }
+  
+
+  namespace View {
+    class View.CountDown_DisableButton.CountDownTask {
+        + run()
+    }
+  }
+  
+
+  namespace View {
+    class View.CountDown_Help {
+        ~ timer : Timer
+        + CountDown_Help()
+    }
+  }
+  
+
+  namespace View {
+    class View.CountDown_Help.CountDownTask {
+        + run()
+    }
+  }
+  
+
+  namespace View {
+    class View.CountDown_ShowButtons {
+        {static} + timer : Timer
+        + CountDown_ShowButtons()
+    }
+  }
+  
+
+  namespace View {
+    class View.CountDown_ShowButtons.CountDownTask {
+        + run()
+    }
+  }
+  
+
+  namespace View {
+    class View.CountDown_UseTheForce {
+        {static} + count : int
+        {static} + timer : Timer
+        + CountDown_UseTheForce()
+    }
+  }
+  
+
+  namespace View {
+    class View.CountDown_UseTheForce.CountDownTask {
+        + run()
+    }
+  }
+  
+
+  namespace View {
+    class View.CountDown_VaderBlaster {
+        ~ timer : Timer
+        + CountDown_VaderBlaster()
+    }
+  }
+  
+
+  namespace View {
+    class View.CountDown_VaderBlaster.CountDownTask {
+        + run()
+    }
+  }
+  
+
+  namespace View {
+    class View.CountDown_tieFighterBlaster {
+        ~ timer : Timer
+        + CountDown_tieFighterBlaster()
+    }
+  }
+  
+
+  namespace View {
+    class View.CountDown_tieFighterBlaster.CountDownTask {
+        + run()
+    }
+  }
+  
+
+  namespace View {
+    interface View.HealthState {
+        {abstract} + getHealth()
+    }
+  }
+  
+
+  namespace View {
+    class View.HealthState_xWing_1 {
+    }
+  }
+  
+
+  namespace View {
+    class View.HealthState_xWing_2 {
+    }
+  }
+  
+
+  namespace View {
+    class View.HealthState_xWing_3 {
+    }
+  }
+  
+
+  namespace View {
+    class View.HealthState_xWing_4 {
+    }
+  }
+  
+
+  namespace View {
+    class View.HealthState_xWing_5 {
+        + getHealth()
+    }
+  }
+  
+
+  namespace View {
+    class View.HealthState_xWing_6 {
+    }
+  }
+  
+
+  namespace View {
+    class View.MyCanvas {
+        {static} + height : int
+        {static} + width : int
+        + paint()
+        + render()
+    }
+  }
+  
+
+  namespace View {
+    class View.MyWindow {
+        {static} + backUpButton : JButton
+        {static} + helpButton : JButton
+        {static} + quitButton : JButton
+        {static} + repairButton : JButton
+        {static} + startButton : JButton
+        {static} + useTheForceButton : JButton
+        + init()
+    }
+  }
+  
+
+  namespace View {
+    class View.StartScreen {
+        + StartScreen()
+        + getCollisionRadius()
+        + getSize()
+        + render()
+        + update()
+    }
+  }
+  
+
+  View.BackgroundState_2dGameplay_Defense .up.|> View.BackgroundState
+  View.BackgroundState_2dGameplay_Offense .up.|> View.BackgroundState
+  View.BackgroundState_2dGameplay_Repair .up.|> View.BackgroundState
+  View.BackgroundState_3dGameplay_UseTheForce .up.|> View.BackgroundState
+  View.BackgroundState_Outcome_YouLose .up.|> View.BackgroundState
+  View.BackgroundState_Outcome_YouWin .up.|> View.BackgroundState
+  View.BackgroundState_StartMenu_Dashboard .up.|> View.BackgroundState
+  View.BackgroundState_StartMenu_Help .up.|> View.BackgroundState
+  View.BackgroundState_StartMenu_Intro .up.|> View.BackgroundState
+  View.BackgroundState_StartMenu_Loading .up.|> View.BackgroundState
+  View.BackgroundState_Transition_BackUp .up.|> View.BackgroundState
+  View.BackgroundState_Transition_Offense .up.|> View.BackgroundState
+  View.BackgroundState_Transition_Offense_Completed .up.|> View.BackgroundState
+  View.CountDown +-down- View.CountDown.CountDownTask
+  View.CountDown.CountDownTask -up-|> java.util.TimerTask
+  View.CountDown_Defense +-down- View.CountDown_Defense.CountDownTask
+  View.CountDown_Defense.CountDownTask -up-|> java.util.TimerTask
+  View.CountDown_DisableButton +-down- View.CountDown_DisableButton.CountDownTask
+  View.CountDown_DisableButton.CountDownTask -up-|> java.util.TimerTask
+  View.CountDown_Help +-down- View.CountDown_Help.CountDownTask
+  View.CountDown_Help.CountDownTask -up-|> java.util.TimerTask
+  View.CountDown_ShowButtons +-down- View.CountDown_ShowButtons.CountDownTask
+  View.CountDown_ShowButtons.CountDownTask -up-|> java.util.TimerTask
+  View.CountDown_UseTheForce +-down- View.CountDown_UseTheForce.CountDownTask
+  View.CountDown_UseTheForce.CountDownTask -up-|> java.util.TimerTask
+  View.CountDown_VaderBlaster +-down- View.CountDown_VaderBlaster.CountDownTask
+  View.CountDown_VaderBlaster.CountDownTask -up-|> java.util.TimerTask
+  View.CountDown_tieFighterBlaster +-down- View.CountDown_tieFighterBlaster.CountDownTask
+  View.CountDown_tieFighterBlaster.CountDownTask -up-|> java.util.TimerTask
+  View.HealthState_xWing_5 .up.|> View.HealthState
+  View.MyCanvas -up-|> javax.swing.JPanel
+  View.MyCanvas o-- View.BackgroundState : backgroundState
+  View.MyCanvas o-- View.HealthState : healthState
+  View.MyWindow -up-|> javax.swing.JFrame
+  View.MyWindow o-- View.MyCanvas : canvas
+  View.StartScreen -up-|> Model.GameFigure
+
+
+right footer
+
+
+PlantUML diagram generated by SketchIt! (https://bitbucket.org/pmesmeur/sketch.it)
+For more information about this tool, please contact philippe.mesmeur@gmail.com
+endfooter
+
+@enduml
