@@ -3,15 +3,13 @@ package View;
 import Controller.Main;
 
 import javax.imageio.ImageIO;
-import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
 public class BackgroundState_StartMenu_Help implements BackgroundState {
 
-    ImageIcon icon = new ImageIcon(this.getClass().getResource("dashboard.gif"));
-    Image image = icon.getImage();
+    AnimatedImage image = new AnimatedImage(getClass().getResource("dashboard.gif"));
 
     public static BufferedImage help;
     {
@@ -24,7 +22,7 @@ public class BackgroundState_StartMenu_Help implements BackgroundState {
 
     @Override
     public void render(Graphics2D g2) {
-        g2.drawImage(image,0,0,null);
+        image.draw(g2, 0, 0);
         g2.drawImage(help,0,0,null);
     }
 

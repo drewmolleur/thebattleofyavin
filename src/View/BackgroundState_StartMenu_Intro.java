@@ -1,7 +1,6 @@
 package View;
 
 import javax.imageio.ImageIO;
-import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -11,8 +10,7 @@ import static View.MyWindow.quitButton;
 
 public class BackgroundState_StartMenu_Intro implements BackgroundState {
 
-    ImageIcon icon;
-    Image image;
+    AnimatedImage image;
 
     public BufferedImage img;
     {
@@ -24,13 +22,12 @@ public class BackgroundState_StartMenu_Intro implements BackgroundState {
     }
 
     public BackgroundState_StartMenu_Intro() {
-        icon = new ImageIcon(this.getClass().getResource("onStart.gif"));
-        image = icon.getImage();
+        image = new AnimatedImage(getClass().getResource("onStart.gif"));
     }
 
     @Override
     public void render(Graphics2D g2) {
-        g2.drawImage(image,0,0,null);
+        image.draw(g2, 0, 0);
     }
 
     @Override

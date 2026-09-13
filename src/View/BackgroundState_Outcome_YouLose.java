@@ -1,16 +1,14 @@
 package View;
 
-import javax.swing.*;
 import java.awt.*;
 
 public class BackgroundState_Outcome_YouLose implements BackgroundState {
 
-    ImageIcon icon = new ImageIcon(this.getClass().getResource("youLose.gif"));
-    Image image = icon.getImage();
+    AnimatedImage image = new AnimatedImage(getClass().getResource("youLose.gif"));
 
     @Override
     public void render(Graphics2D g2) {
-        g2.drawImage(image,0,0,null);
+        image.draw(g2, 0, 0);
     }
 
     @Override
