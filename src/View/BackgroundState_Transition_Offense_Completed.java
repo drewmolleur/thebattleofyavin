@@ -9,7 +9,7 @@ import static Controller.Main.addVaderWithListener;
 
 public class BackgroundState_Transition_Offense_Completed implements BackgroundState {
 
-    AnimatedImage image = new AnimatedImage(getClass().getResource("completed.gif"));
+    AnimatedImage image = AnimatedImage.load(getClass().getResource("completed.gif"));
 
     @Override
     public void render(Graphics2D g2) {

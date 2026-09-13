@@ -22,7 +22,7 @@ public class BackgroundState_StartMenu_Intro implements BackgroundState {
     }
 
     public BackgroundState_StartMenu_Intro() {
-        image = new AnimatedImage(getClass().getResource("onStart.gif"));
+        image = AnimatedImage.load(getClass().getResource("onStart.gif"));
     }
 
     @Override

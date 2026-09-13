@@ -6,7 +6,7 @@ import java.awt.*;
 
 public class BackgroundState_StartMenu_Loading implements BackgroundState {
 
-    AnimatedImage image = new AnimatedImage(getClass().getResource("loading.gif"));
+    AnimatedImage image = AnimatedImage.load(getClass().getResource("loading.gif"));
 
     @Override
     public void render(Graphics2D g2) {

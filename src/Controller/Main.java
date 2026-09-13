@@ -20,6 +20,10 @@ public class Main {
     public static int INDEX_MOUSE_POINTER = 0;
     public static int INDEX_SHOOTER = 1;
     public static int FPS = 60;
+    // Movement in this game is defined per update (pixels per step), so the
+    // update rate *is* the game speed. Rendering stays at FPS regardless.
+    // Override with -Dyavin.speed=<updates per second>.
+    public static int UPDATES_PER_SECOND = Integer.getInteger("yavin.speed", 30);
     public static int lightSaber = 6;
 
     public static void main(String[] args) {
@@ -182,11 +186,20 @@ public class Main {
 
     static void gameLoop() {
         running = true;
+        long updateInterval = 1_000_000_000L / UPDATES_PER_SECOND;
+        long nextUpdate = System.nanoTime();
         while (running) {
             long startTime = System.currentTimeMillis();
-            playerInputEventQueue.processInputEvents();
-            processCollisions();
-            gameData.update();
+            long now = System.nanoTime();
+            if (now - nextUpdate > 5 * updateInterval) {
+                nextUpdate = now; // stalled (e.g. loading a scene): don't try to catch up
+            }
+            while (now >= nextUpdate) {
+                playerInputEventQueue.processInputEvents();
+                processCollisions();
+                gameData.update();
+                nextUpdate += updateInterval;
+            }
             win.canvas.render();
             sleepUntilNextFrame(startTime);
         }

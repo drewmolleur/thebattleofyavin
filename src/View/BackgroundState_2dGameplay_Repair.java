@@ -8,7 +8,7 @@ import static View.MyWindow.repairButton;
 
 public class BackgroundState_2dGameplay_Repair implements BackgroundState {
 
-    AnimatedImage image = new AnimatedImage(getClass().getResource("repair.gif"));
+    AnimatedImage image = AnimatedImage.load(getClass().getResource("repair.gif"));
 
     @Override
     public void render(Graphics2D g2) {

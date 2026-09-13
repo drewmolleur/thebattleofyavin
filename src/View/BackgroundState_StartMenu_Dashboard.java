@@ -20,7 +20,7 @@ public class BackgroundState_StartMenu_Dashboard implements BackgroundState {
     }
 
     public BackgroundState_StartMenu_Dashboard() {
-        image = new AnimatedImage(getClass().getResource("onStart.gif"));
+        image = AnimatedImage.load(getClass().getResource("onStart.gif"));
     }
 
     @Override

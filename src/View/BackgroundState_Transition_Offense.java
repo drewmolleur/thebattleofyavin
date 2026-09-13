@@ -6,7 +6,7 @@ import java.awt.*;
 
 public class BackgroundState_Transition_Offense implements BackgroundState {
 
-    AnimatedImage image = new AnimatedImage(getClass().getResource("begin.gif"));
+    AnimatedImage image = AnimatedImage.load(getClass().getResource("begin.gif"));
 
     @Override
     public void render(Graphics2D g2) {

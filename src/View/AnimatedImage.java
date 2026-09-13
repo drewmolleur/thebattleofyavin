@@ -1,136 +1,204 @@
 package View;
 
-import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.Image;
-import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
-import java.awt.image.ImageObserver;
+import java.awt.image.DataBufferInt;
+import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- * A flicker-free wrapper around an animated GIF loaded through the AWT Toolkit.
+ * Plays an animated GIF background smoothly and cheaply.
  *
- * The Toolkit decodes an animated GIF on a background thread and writes each
- * new frame straight into the image's pixel buffer, row by row. Drawing that
- * image with a {@code null} observer copies whatever happens to be in the
- * buffer at that instant: a half-decoded frame (horizontal streaks) or a frame
- * whose area has just been wiped by the GIF's disposal step (black frames).
+ * Java's built-in Toolkit GIF support is a poor fit for the game's large
+ * video-like GIFs: it draws half-decoded frames (flicker), it sleeps for the
+ * frame delay only after spending the decode time (so playback runs slow),
+ * and it buffers the entire file in memory so that it can loop (hundreds of
+ * megabytes per background, with garbage-collection stalls whenever a new
+ * one starts).
  *
- * This class registers itself as an {@link ImageObserver} and copies the
- * buffer into its own {@link BufferedImage} only when the decoder reports a
- * complete frame ({@code FRAMEBITS} / {@code ALLBITS}). {@link #draw} always
- * paints that last complete frame, so callers never see a partial one.
+ * This class instead streams frames through {@link GifDecoder} on its own
+ * thread, decoding each frame ahead of the moment it is due, and publishes
+ * only complete frames. {@link #draw} always paints the latest complete
+ * frame. Memory use is a few screen-sized buffers regardless of file size.
+ * The decoding thread stops itself when the image has not been drawn for a
+ * while (the scene moved on) and resumes on the next draw.
  */
-public class AnimatedImage implements ImageObserver {
+public class AnimatedImage {
 
-    /** How long to wait for the first complete frame before giving up. */
-    private static final long FIRST_FRAME_TIMEOUT_MS = 5000;
+    /** Frames with a tiny or missing delay are shown for this long, as browsers do. */
+    private static final int MIN_DELAY_MS = 20;
+    private static final int DEFAULT_DELAY_MS = 100;
+    /** Stop decoding when nobody has drawn this image for this long. */
+    private static final long IDLE_STOP_NANOS = 2_000_000_000L;
 
-    private final Image source;
-    private volatile BufferedImage currentFrame;
-    private BufferedImage spareFrame;
-    private boolean finished;
+    private static final Map<String, WeakReference<AnimatedImage>> CACHE = new HashMap<>();
 
     /**
-     * Loads the image at {@code location} and, like {@code ImageIcon}, blocks
-     * until the first frame is available so the first draw is not empty.
+     * Returns the player for a GIF, sharing one between scenes that use the
+     * same file while any of them is alive, so the footage carries on where
+     * it was instead of restarting at the cut. Unused players are garbage
+     * collected normally.
      */
-    public AnimatedImage(URL location) {
-        this(Toolkit.getDefaultToolkit().getImage(location));
+    public static synchronized AnimatedImage load(URL location) {
+        String key = String.valueOf(location);
+        WeakReference<AnimatedImage> ref = CACHE.get(key);
+        AnimatedImage image = ref != null ? ref.get() : null;
+        if (image == null) {
+            image = new AnimatedImage(location);
+            CACHE.put(key, new WeakReference<>(image));
+        }
+        return image;
     }
 
-    public AnimatedImage(Image source) {
-        this.source = source;
-        Toolkit toolkit = Toolkit.getDefaultToolkit();
-        // Start decoding and subscribe to every complete-frame notification.
-        boolean alreadyComplete = toolkit.prepareImage(source, -1, -1, this);
-        if (alreadyComplete) {
-            // A fully loaded static image: the buffer will never change again.
-            captureFrame();
-            return;
+    private final URL location;
+    private GifDecoder decoder;
+    private int loopsRemaining;      // -1 = forever
+    private volatile boolean finished; // animation ended (or failed): hold the last frame
+
+    // Triple buffer, same scheme as MyCanvas: the decoder writes into a buffer
+    // that is neither the one currently shown nor the one being drawn.
+    private final BufferedImage[] buffers = new BufferedImage[3];
+    private int shown = -1;
+    private int drawing = -1;
+    private final Object lock = new Object();
+
+    private Thread player;
+    private volatile long lastDrawNanos = System.nanoTime();
+
+    public AnimatedImage(URL location) {
+        this.location = location;
+        try {
+            decoder = new GifDecoder(location);
+            // Decode the first frame right away so the first draw is not empty.
+            int delay = decoder.nextFrame();
+            // The loop count is read from an extension that precedes the first frame.
+            loopsRemaining = decoder.loopCount < 0 ? 0 : (decoder.loopCount == 0 ? -1 : decoder.loopCount - 1);
+            if (delay < 0) {
+                finished = true;
+            } else {
+                pendingDelay = normaliseDelay(delay);
+                publish(copyCanvas(freeBuffer()));
+            }
+        } catch (IOException e) {
+            System.err.println("AnimatedImage: cannot play " + location + ": " + e.getMessage());
+            finished = true;
         }
-        waitForFirstFrame();
     }
 
     /** Draws the most recent complete frame at the given position. */
     public void draw(Graphics2D g2, int x, int y) {
-        BufferedImage frame = currentFrame;
-        if (frame != null) {
+        lastDrawNanos = System.nanoTime();
+        ensurePlaying();
+        BufferedImage frame;
+        synchronized (lock) {
+            if (shown < 0) {
+                return;
+            }
+            drawing = shown;
+            frame = buffers[drawing];
+        }
+        try {
             g2.drawImage(frame, x, y, null);
+        } finally {
+            synchronized (lock) {
+                drawing = -1;
+            }
         }
     }
 
-    /**
-     * Called by the Toolkit on the image producer's thread. A FRAMEBITS or
-     * ALLBITS notification is sent right after a full frame has been decoded
-     * and before the decoder starts modifying the buffer for the next one, so
-     * that is the only safe moment to copy the buffer.
-     */
-    @Override
-    public boolean imageUpdate(Image img, int infoflags, int x, int y, int width, int height) {
-        if ((infoflags & (ERROR | ABORT)) != 0) {
-            markFinished();
-            return false;
-        }
-        if ((infoflags & (FRAMEBITS | ALLBITS)) != 0) {
-            captureFrame();
-        }
-        if ((infoflags & ALLBITS) != 0) {
-            markFinished();
-            return false;
-        }
-        return true;
-    }
-
-    private synchronized void captureFrame() {
-        int w = source.getWidth(null);
-        int h = source.getHeight(null);
-        if (w <= 0 || h <= 0) {
+    private synchronized void ensurePlaying() {
+        if (finished || (player != null && player.isAlive())) {
             return;
         }
-        if (spareFrame == null || spareFrame.getWidth() != w || spareFrame.getHeight() != h) {
-            // Opaque: drawing the frame later is then a straight copy rather
-            // than a per-pixel alpha blend. Any transparent GIF pixels (areas
-            // the decoder wiped between frames) come out black, as before.
-            spareFrame = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
-        }
-        Graphics2D g = spareFrame.createGraphics();
+        player = new Thread(this::play, "gif-player " + location.getFile());
+        player.setDaemon(true);
+        player.start();
+    }
+
+    /** Decoder thread: decode the next frame, wait until it is due, publish, repeat. */
+    private void play() {
+        long due = System.nanoTime();
+        int delay = pendingDelay;
         try {
-            g.setColor(Color.BLACK);
-            g.fillRect(0, 0, w, h);
-            g.drawImage(source, 0, 0, null);
-        } finally {
-            g.dispose();
+            while (true) {
+                if (System.nanoTime() - lastDrawNanos > IDLE_STOP_NANOS) {
+                    return; // nobody is looking; draw() restarts us
+                }
+                // Decode the frame that follows the one currently shown.
+                int nextDelay = decoder.nextFrame();
+                if (nextDelay < 0) {
+                    if (loopsRemaining == 0) {
+                        finished = true;
+                        return;
+                    }
+                    if (loopsRemaining > 0) {
+                        loopsRemaining--;
+                    }
+                    decoder.restart();
+                    nextDelay = decoder.nextFrame();
+                    if (nextDelay < 0) {
+                        finished = true;
+                        return;
+                    }
+                }
+                int target = copyCanvas(freeBuffer());
+
+                // Show it once the frame before it has been on screen for its delay.
+                due += (long) delay * 1_000_000L;
+                long now = System.nanoTime();
+                if (due < now - 500_000_000L) {
+                    due = now; // fell far behind (decoding too slow): don't try to catch up
+                }
+                long wait = due - now;
+                if (wait > 0) {
+                    Thread.sleep(wait / 1_000_000L, (int) (wait % 1_000_000L));
+                }
+                publish(target);
+                FrameStats.backgroundFrameDone();
+                delay = normaliseDelay(nextDelay);
+                pendingDelay = delay;
+            }
+        } catch (IOException e) {
+            System.err.println("AnimatedImage: playback of " + location + " stopped: " + e.getMessage());
+            finished = true;
+        } catch (InterruptedException e) {
+            // stopping
         }
-        FrameStats.backgroundFrameDone();
-        // Swap: the frame just filled becomes the one to show and the old one
-        // becomes the spare. Readers only ever see a fully written frame.
-        BufferedImage previous = currentFrame;
-        currentFrame = spareFrame;
-        spareFrame = previous;
-        notifyAll();
     }
 
-    private synchronized void markFinished() {
-        finished = true;
-        notifyAll();
+    /** Delay of the frame currently shown; the next frame is due this long after it appeared. */
+    private volatile int pendingDelay = DEFAULT_DELAY_MS;
+
+    private int freeBuffer() {
+        synchronized (lock) {
+            int i = 0;
+            while (i == shown || i == drawing) {
+                i++;
+            }
+            if (buffers[i] == null) {
+                buffers[i] = new BufferedImage(decoder.width, decoder.height, BufferedImage.TYPE_INT_RGB);
+            }
+            return i;
+        }
     }
 
-    private synchronized void waitForFirstFrame() {
-        long deadline = System.currentTimeMillis() + FIRST_FRAME_TIMEOUT_MS;
-        while (currentFrame == null && !finished) {
-            long remaining = deadline - System.currentTimeMillis();
-            if (remaining <= 0) {
-                System.err.println("AnimatedImage: timed out waiting for the first frame of " + source);
-                return;
-            }
-            try {
-                wait(remaining);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                return;
-            }
+    /** Copies the decoder's canvas into buffer i (transparent pixels come out black). */
+    private int copyCanvas(int i) {
+        int[] pixels = ((DataBufferInt) buffers[i].getRaster().getDataBuffer()).getData();
+        System.arraycopy(decoder.canvas, 0, pixels, 0, pixels.length);
+        return i;
+    }
+
+    private void publish(int i) {
+        synchronized (lock) {
+            shown = i;
         }
+    }
+
+    static int normaliseDelay(int delayMs) {
+        return delayMs < MIN_DELAY_MS ? DEFAULT_DELAY_MS : delayMs;
     }
 }

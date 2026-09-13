@@ -4,7 +4,7 @@ import java.awt.*;
 
 public class BackgroundState_Transition_BackUp implements BackgroundState {
 
-    AnimatedImage image = new AnimatedImage(getClass().getResource("backUp.gif"));
+    AnimatedImage image = AnimatedImage.load(getClass().getResource("backUp.gif"));
 
     @Override
     public void render(Graphics2D g2) {

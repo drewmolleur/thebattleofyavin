@@ -12,7 +12,7 @@ import static View.MyWindow.useTheForceButton;
 
 public class BackgroundState_2dGameplay_Defense implements BackgroundState {
 
-    AnimatedImage image = new AnimatedImage(getClass().getResource("2dGameplay.gif"));
+    AnimatedImage image = AnimatedImage.load(getClass().getResource("2dGameplay.gif"));
 
     public static BufferedImage health;
 

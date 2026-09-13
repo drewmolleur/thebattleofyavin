@@ -4,7 +4,7 @@ import java.awt.*;
 
 public class BackgroundState_Outcome_YouLose implements BackgroundState {
 
-    AnimatedImage image = new AnimatedImage(getClass().getResource("youLose.gif"));
+    AnimatedImage image = AnimatedImage.load(getClass().getResource("youLose.gif"));
 
     @Override
     public void render(Graphics2D g2) {

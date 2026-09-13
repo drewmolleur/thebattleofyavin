@@ -9,7 +9,7 @@ import java.io.IOException;
 
 public class BackgroundState_StartMenu_Help implements BackgroundState {
 
-    AnimatedImage image = new AnimatedImage(getClass().getResource("dashboard.gif"));
+    AnimatedImage image = AnimatedImage.load(getClass().getResource("dashboard.gif"));
 
     public static BufferedImage help;
     {

@@ -6,7 +6,7 @@ import static View.MyWindow.*;
 
 public class BackgroundState_3dGameplay_UseTheForce implements BackgroundState {
 
-    AnimatedImage image = new AnimatedImage(getClass().getResource("3dGameplay.gif"));
+    AnimatedImage image = AnimatedImage.load(getClass().getResource("3dGameplay.gif"));
 
     @Override
     public void render(Graphics2D g2) {
