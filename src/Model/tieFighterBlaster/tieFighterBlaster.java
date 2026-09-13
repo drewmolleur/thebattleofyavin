@@ -49,9 +49,16 @@ public class tieFighterBlaster extends GameFigure {
         updateState();
         if(state == STATE_SHOOTING) {
             // travel along the path to the target
-            double rad = Math.atan2(target.y - location.y, target.x - location.x);
-            location.x += UNIT_MOVE * Math.cos(rad);
-            location.y += UNIT_MOVE * Math.sin(rad);
+            if (target.distance(location) <= UNIT_MOVE) {
+                // Within one step: land exactly on the target so the shot
+                // explodes instead of overshooting and jittering forever.
+                location.x = target.x;
+                location.y = target.y;
+            } else {
+                double rad = Math.atan2(target.y - location.y, target.x - location.x);
+                location.x += UNIT_MOVE * Math.cos(rad);
+                location.y += UNIT_MOVE * Math.sin(rad);
+            }
         } else if(state == STATE_EXPLODING) {
             // explosion effect
             color = Color.ORANGE;
