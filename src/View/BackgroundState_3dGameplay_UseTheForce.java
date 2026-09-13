@@ -1,18 +1,16 @@
 package View;
 
-import javax.swing.*;
 import java.awt.*;
 
 import static View.MyWindow.*;
 
 public class BackgroundState_3dGameplay_UseTheForce implements BackgroundState {
 
-    ImageIcon icon = new ImageIcon(this.getClass().getResource("3dGameplay.gif"));
-    Image image = icon.getImage();
+    AnimatedImage image = new AnimatedImage(getClass().getResource("3dGameplay.gif"));
 
     @Override
     public void render(Graphics2D g2) {
-        g2.drawImage(image,0,0,null);
+        image.draw(g2, 0, 0);
     }
 
     @Override

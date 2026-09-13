@@ -2,7 +2,6 @@ package View;
 
 import Controller.Main;
 
-import javax.swing.*;
 import java.awt.*;
 
 import static Controller.Main.addTieFighterWithListener;
@@ -10,12 +9,11 @@ import static Controller.Main.addVaderWithListener;
 
 public class BackgroundState_Transition_Offense_Completed implements BackgroundState {
 
-    ImageIcon icon = new ImageIcon(this.getClass().getResource("completed.gif"));
-    Image image = icon.getImage();
+    AnimatedImage image = new AnimatedImage(getClass().getResource("completed.gif"));
 
     @Override
     public void render(Graphics2D g2) {
-        g2.drawImage(image,0,0,null);
+        image.draw(g2, 0, 0);
     }
 
     @Override

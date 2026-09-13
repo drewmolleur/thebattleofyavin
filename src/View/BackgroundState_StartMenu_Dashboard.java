@@ -3,15 +3,13 @@ package View;
 import Controller.Main;
 
 import javax.imageio.ImageIO;
-import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
 public class BackgroundState_StartMenu_Dashboard implements BackgroundState {
 
-    ImageIcon icon;
-    Image image;
+    AnimatedImage image;
 
     public BufferedImage img; {
         try {
@@ -22,13 +20,12 @@ public class BackgroundState_StartMenu_Dashboard implements BackgroundState {
     }
 
     public BackgroundState_StartMenu_Dashboard() {
-        icon = new ImageIcon(this.getClass().getResource("onStart.gif"));
-        image = icon.getImage();
+        image = new AnimatedImage(getClass().getResource("onStart.gif"));
     }
 
     @Override
     public void render(Graphics2D g2) {
-        g2.drawImage(image,0,0,null);
+        image.draw(g2, 0, 0);
         g2.drawImage(img,0,0,null);
         for (var fig : Main.gameData.friendObjects) {
             fig.render(g2);

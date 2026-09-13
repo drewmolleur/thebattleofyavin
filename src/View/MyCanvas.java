@@ -2,6 +2,7 @@ package View;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.image.BufferedImage;
 
 public class MyCanvas extends JPanel {
 
@@ -12,50 +13,68 @@ public class MyCanvas extends JPanel {
     public BackgroundState backgroundState = new BackgroundState_StartMenu_Intro();
     public HealthState healthState = new HealthState_xWing_5();
 
-    // draw to screen
-    public void render() {
-        width = getSize().width;
-        height = getSize().height;
+    // Double buffer: the game thread draws into drawBuffer, Swing paints showBuffer.
+    private BufferedImage drawBuffer;
+    private BufferedImage showBuffer;
+    private final Object bufferLock = new Object();
 
-        // off-screen double buffer image
-        Image doubleBufferImage = createImage(width, height);
-        if (doubleBufferImage == null) {
-            System.out.println("Critical error: doubleBufferImage is null");
-            System.exit(1);
-        }
-
-        //off-screen rendering
-        Graphics2D g2OffScreen = (Graphics2D) doubleBufferImage.getGraphics();
-        if (g2OffScreen == null) {
-            System.out.println("Critical error: g2OffScreen is null");
-            System.exit(1);
-        }
-
-        //initialize the image buffer
-        g2OffScreen.setBackground(Color.BLACK);
-        g2OffScreen.clearRect(0, 0, width, height);
-        backgroundState.render(g2OffScreen);
-
-        // use active rendering to put the buffer image on screen
-        Graphics gOnScreen;
-        gOnScreen = this.getGraphics();
-
-        if (gOnScreen != null) {
-            //copy offScreen image to onScreen
-            gOnScreen.drawImage(doubleBufferImage, 0, 0, null);
-        }
-
-        // sync the display on the some systems
-        Toolkit.getDefaultToolkit().sync();
-        if (gOnScreen != null) {
-            gOnScreen.dispose();
-        }
-        paint(g2OffScreen);
+    public MyCanvas() {
+        setOpaque(true);
+        setBackground(Color.BLACK);
     }
 
-    public void paint(Graphics g) {
-        final Graphics2D g2d;
-        g2d = (Graphics2D) g;
-        g2d.drawImage(null, null, 0, 0);
+    // Called from the game loop: draw the next frame off-screen, then ask Swing to show it.
+    public void render() {
+        int w = getWidth();
+        int h = getHeight();
+        if (w <= 0 || h <= 0) {
+            return; // not laid out yet
+        }
+        width = w;
+        height = h;
+
+        if (drawBuffer == null || drawBuffer.getWidth() != w || drawBuffer.getHeight() != h) {
+            drawBuffer = createBuffer(w, h);
+        }
+
+        Graphics2D g2OffScreen = drawBuffer.createGraphics();
+        try {
+            g2OffScreen.setColor(Color.BLACK);
+            g2OffScreen.fillRect(0, 0, w, h);
+            backgroundState.render(g2OffScreen);
+        } finally {
+            g2OffScreen.dispose();
+        }
+
+        // Publish the finished frame. paintComponent() holds the same lock while
+        // copying showBuffer to the screen, so it never sees a half-drawn frame.
+        synchronized (bufferLock) {
+            BufferedImage finished = drawBuffer;
+            drawBuffer = showBuffer;
+            showBuffer = finished;
+        }
+        repaint();
+    }
+
+    // Every paint, whether requested by render() or by Swing itself (button
+    // changes, focus changes, window events), shows the last finished frame.
+    @Override
+    protected void paintComponent(Graphics g) {
+        synchronized (bufferLock) {
+            if (showBuffer != null) {
+                g.drawImage(showBuffer, 0, 0, null);
+            } else {
+                g.setColor(Color.BLACK);
+                g.fillRect(0, 0, getWidth(), getHeight());
+            }
+        }
+    }
+
+    private BufferedImage createBuffer(int w, int h) {
+        GraphicsConfiguration gc = getGraphicsConfiguration();
+        if (gc != null) {
+            return gc.createCompatibleImage(w, h, Transparency.OPAQUE);
+        }
+        return new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
     }
 }

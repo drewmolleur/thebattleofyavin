@@ -2,19 +2,17 @@ package View;
 
 import Model.GameData;
 
-import javax.swing.*;
 import java.awt.*;
 
 import static View.MyWindow.repairButton;
 
 public class BackgroundState_2dGameplay_Repair implements BackgroundState {
 
-    ImageIcon icon = new ImageIcon(this.getClass().getResource("repair.gif"));
-    Image image = icon.getImage();
+    AnimatedImage image = new AnimatedImage(getClass().getResource("repair.gif"));
 
     @Override
     public void render(Graphics2D g2) {
-        g2.drawImage(image,0,0,null);
+        image.draw(g2, 0, 0);
     }
 
     @Override
