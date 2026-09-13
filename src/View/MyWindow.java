@@ -19,7 +19,10 @@ public class MyWindow extends JFrame {
         // INITIALIZE GAME WINDOW
         canvas = new MyCanvas();
         setTitle("STAR WARS: The Battle Of Yavin");
+        // If Swing or the OS ever shows the bare window between paints, show black, not white.
+        setBackground(Color.BLACK);
         var cp = getContentPane();
+        cp.setBackground(Color.BLACK);
         MouseEventListener listener = new MouseEventListener();
         KeyEventListener keyEventListener = new KeyEventListener();
         canvas.addMouseListener(listener);
