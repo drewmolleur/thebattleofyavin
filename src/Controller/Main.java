@@ -4,6 +4,7 @@ import Model.*;
 import Model.Vader.Vader;
 import Model.tieFighter.tieFighter;
 import View.CountDown;
+import View.MyCanvas;
 import View.MyWindow;
 import javax.sound.sampled.*;
 import javax.swing.*;
@@ -149,15 +150,17 @@ public class Main {
         Font font = new Font("Courier New", Font.PLAIN, 40);
         gameData.friendObjects.add(new Text("OBJECT ORIENTED SOFTWARE DESIGN & CONSTRUCTION - DR.SUNG - FALL 2019", 150, 775, Color.WHITE, font));
         while (!running) {
+            long startTime = System.currentTimeMillis();
             Main.win.canvas.render();
+            sleepUntilNextFrame(startTime);
         }
     }
 
     public static void initGame() {
         gameData.clear();
         gameData.fixedObjects.add(new MousePointer(0, 0));
-        int x = Main.win.getWidth() / 2;
-        int y = Main.win.getHeight() - 100;
+        int x = MyCanvas.GAME_WIDTH / 2;
+        int y = MyCanvas.GAME_HEIGHT - 100;
         gameData.fixedObjects.add(new Shooter(x, y));
         addTieFighterWithListener(100,100);
         addTieFighterWithListener(1200,200);
@@ -185,14 +188,18 @@ public class Main {
             processCollisions();
             gameData.update();
             win.canvas.render();
-            long endTime = System.currentTimeMillis();
-            long timeSpent = endTime - startTime;
-            long sleepTime = (long) (1000.0 / FPS - timeSpent);
-            try {
-                if (sleepTime > 0) Thread.sleep(sleepTime);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            sleepUntilNextFrame(startTime);
+        }
+    }
+
+    // Wait out the rest of the frame so the loop runs at FPS frames per second.
+    static void sleepUntilNextFrame(long frameStartTime) {
+        long timeSpent = System.currentTimeMillis() - frameStartTime;
+        long sleepTime = (long) (1000.0 / FPS - timeSpent);
+        try {
+            if (sleepTime > 0) Thread.sleep(sleepTime);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 

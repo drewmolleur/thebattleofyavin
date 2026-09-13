@@ -22,7 +22,7 @@ public class BackgroundState_Transition_Offense_Completed implements BackgroundS
         addTieFighterWithListener(400,700);
         addVaderWithListener(700,700);
         addTieFighterWithListener(1000,700);
-        Main.gameData.fixedObjects.get(Main.INDEX_SHOOTER).location.x=Main.win.canvas.getWidth()/2;
+        Main.gameData.fixedObjects.get(Main.INDEX_SHOOTER).location.x=MyCanvas.GAME_WIDTH/2;
         Main.gameData.fixedObjects.get(Main.INDEX_SHOOTER).location.y=250;
         Main.win.canvas.backgroundState = new BackgroundState_2dGameplay_Defense();
         new CountDown_VaderBlaster(5);

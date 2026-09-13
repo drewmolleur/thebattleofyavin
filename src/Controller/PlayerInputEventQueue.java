@@ -5,6 +5,7 @@ import Model.Missile.Missile;
 import Model.MousePointer;
 import Model.Shooter;
 
+import java.awt.Point;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.util.LinkedList;
@@ -23,8 +24,9 @@ public class PlayerInputEventQueue {
 
                 case InputEvent.MOUSE_PRESSED:
                     MouseEvent e = (MouseEvent) inputEvent.event;
-                    Missile m = new Missile(e.getX(), e.getY());
-                    Missile m2 = new Missile(e.getX() + 100, e.getY());
+                    Point target = Main.win.canvas.toGamePoint(e.getX(), e.getY());
+                    Missile m = new Missile(target.x, target.y);
+                    Missile m2 = new Missile(target.x + 100, target.y);
                     Main.gameData.friendObjects.add(m);
                     Main.gameData.friendObjects.add(m2);
                     Main.xWingMissile.start();
@@ -32,8 +34,9 @@ public class PlayerInputEventQueue {
                 case InputEvent.MOUSE_MOVED:
                     MousePointer mp = (MousePointer) Main.gameData.fixedObjects.get(0);
                     MouseEvent me = (MouseEvent) inputEvent.event;
-                    mp.location.x = me.getX();
-                    mp.location.y = me.getY();
+                    Point pointer = Main.win.canvas.toGamePoint(me.getX(), me.getY());
+                    mp.location.x = pointer.x;
+                    mp.location.y = pointer.y;
                     break;
                 case InputEvent.KEY_PRESSED:
                     var shooter = Main.gameData.fixedObjects.get(Main.INDEX_SHOOTER);

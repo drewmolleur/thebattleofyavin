@@ -18,10 +18,7 @@ public class MyWindow extends JFrame {
 
         // INITIALIZE GAME WINDOW
         canvas = new MyCanvas();
-        Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
         setTitle("STAR WARS: The Battle Of Yavin");
-        setSize(1920, 880);
-        setLocation(dim.width/2-this.getSize().width/2, 0);
         var cp = getContentPane();
         MouseEventListener listener = new MouseEventListener();
         KeyEventListener keyEventListener = new KeyEventListener();
@@ -60,6 +57,23 @@ public class MyWindow extends JFrame {
         buttonPanel.add(backUpButton);
         buttonPanel.add(useTheForceButton);
         cp.add(BorderLayout.SOUTH, buttonPanel);
+
+        // SIZE THE WINDOW TO THE SCREEN
+        // The canvas wants its full 1920x816. On a smaller screen shrink it,
+        // keeping the aspect ratio, so nothing is cut off; the canvas scales
+        // the game image to fit and converts mouse positions back.
+        pack();
+        Rectangle screen = GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds();
+        int extraWidth = getWidth() - canvas.getWidth();      // window borders
+        int extraHeight = getHeight() - canvas.getHeight();   // title bar + button panel
+        double scale = Math.min(1.0, Math.min(
+                (screen.width - extraWidth) / (double) MyCanvas.GAME_WIDTH,
+                (screen.height - extraHeight) / (double) MyCanvas.GAME_HEIGHT));
+        canvas.setPreferredSize(new Dimension(
+                (int) Math.floor(MyCanvas.GAME_WIDTH * scale),
+                (int) Math.floor(MyCanvas.GAME_HEIGHT * scale)));
+        pack();
+        setLocation(screen.x + (screen.width - getWidth()) / 2, screen.y + (screen.height - getHeight()) / 2);
 
         // BUTTON FUNCTIONALITY
         startButton.addActionListener(e -> {
