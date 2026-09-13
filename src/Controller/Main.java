@@ -134,8 +134,8 @@ public class Main {
         win = new MyWindow();
         win.init();
         win.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        win.setVisible(true);
         win.setResizable(false);
+        win.setVisible(true);
         new CountDown(3);
         gameData = new GameData();
         playerInputEventQueue = new PlayerInputEventQueue();

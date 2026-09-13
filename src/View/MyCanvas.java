@@ -19,9 +19,12 @@ public class MyCanvas extends JPanel {
     public BackgroundState backgroundState = new BackgroundState_StartMenu_Intro();
     public HealthState healthState = new HealthState_xWing_5();
 
-    // Double buffer: the game thread draws into drawBuffer, Swing paints showBuffer.
-    private BufferedImage drawBuffer;
-    private BufferedImage showBuffer;
+    // Triple buffer. The game thread draws into a buffer that is neither the
+    // latest finished frame nor the one Swing is painting right now, so the
+    // two threads never wait for each other and never touch the same buffer.
+    private final BufferedImage[] buffers = new BufferedImage[3];
+    private int latest = -1;    // newest finished frame, -1 until the first render
+    private int painting = -1;  // buffer the EDT is currently drawing, -1 if none
     private final Object bufferLock = new Object();
 
     public MyCanvas() {
@@ -32,11 +35,19 @@ public class MyCanvas extends JPanel {
 
     // Called from the game loop: draw the next frame off-screen, then ask Swing to show it.
     public void render() {
-        if (drawBuffer == null) {
-            drawBuffer = createBuffer(GAME_WIDTH, GAME_HEIGHT);
+        long start = System.nanoTime();
+        int target;
+        synchronized (bufferLock) {
+            target = 0;
+            while (target == latest || target == painting) {
+                target++;
+            }
+        }
+        if (buffers[target] == null) {
+            buffers[target] = createBuffer(GAME_WIDTH, GAME_HEIGHT);
         }
 
-        Graphics2D g2OffScreen = drawBuffer.createGraphics();
+        Graphics2D g2OffScreen = buffers[target].createGraphics();
         try {
             g2OffScreen.setColor(Color.BLACK);
             g2OffScreen.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
@@ -45,13 +56,10 @@ public class MyCanvas extends JPanel {
             g2OffScreen.dispose();
         }
 
-        // Publish the finished frame. paintComponent() holds the same lock while
-        // copying showBuffer to the screen, so it never sees a half-drawn frame.
         synchronized (bufferLock) {
-            BufferedImage finished = drawBuffer;
-            drawBuffer = showBuffer;
-            showBuffer = finished;
+            latest = target;
         }
+        FrameStats.renderDone(System.nanoTime() - start);
         repaint();
     }
 
@@ -59,23 +67,30 @@ public class MyCanvas extends JPanel {
     // changes, focus changes, window events), shows the last finished frame.
     @Override
     protected void paintComponent(Graphics g) {
-        Graphics2D g2 = (Graphics2D) g;
-        g2.setColor(Color.BLACK);
-        g2.fillRect(0, 0, getWidth(), getHeight());
-
-        Rectangle bounds = getGameBounds();
+        long start = System.nanoTime();
+        BufferedImage frame;
         synchronized (bufferLock) {
-            if (showBuffer == null) {
+            if (latest < 0) {
+                g.setColor(Color.BLACK);
+                g.fillRect(0, 0, getWidth(), getHeight());
                 return;
             }
-            if (bounds.width == GAME_WIDTH && bounds.height == GAME_HEIGHT) {
-                g2.drawImage(showBuffer, bounds.x, bounds.y, null);
-            } else {
-                g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
-                        RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-                g2.drawImage(showBuffer, bounds.x, bounds.y, bounds.width, bounds.height, null);
+            painting = latest;
+            frame = buffers[painting];
+        }
+        try {
+            Rectangle bounds = getGameBounds();
+            if (bounds.width < getWidth() || bounds.height < getHeight()) {
+                g.setColor(Color.BLACK);
+                g.fillRect(0, 0, getWidth(), getHeight()); // letterbox bars
+            }
+            g.drawImage(frame, bounds.x, bounds.y, bounds.width, bounds.height, null);
+        } finally {
+            synchronized (bufferLock) {
+                painting = -1;
             }
         }
+        FrameStats.paintDone(System.nanoTime() - start);
     }
 
     /**

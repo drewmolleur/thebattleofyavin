@@ -1,6 +1,6 @@
 package View;
 
-import java.awt.AlphaComposite;
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Toolkit;
@@ -90,15 +90,20 @@ public class AnimatedImage implements ImageObserver {
             return;
         }
         if (spareFrame == null || spareFrame.getWidth() != w || spareFrame.getHeight() != h) {
-            spareFrame = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+            // Opaque: drawing the frame later is then a straight copy rather
+            // than a per-pixel alpha blend. Any transparent GIF pixels (areas
+            // the decoder wiped between frames) come out black, as before.
+            spareFrame = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
         }
         Graphics2D g = spareFrame.createGraphics();
         try {
-            g.setComposite(AlphaComposite.Src);
+            g.setColor(Color.BLACK);
+            g.fillRect(0, 0, w, h);
             g.drawImage(source, 0, 0, null);
         } finally {
             g.dispose();
         }
+        FrameStats.backgroundFrameDone();
         // Swap: the frame just filled becomes the one to show and the old one
         // becomes the spare. Readers only ever see a fully written frame.
         BufferedImage previous = currentFrame;

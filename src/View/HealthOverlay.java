@@ -1,6 +1,8 @@
 package View;
 
 import javax.imageio.ImageIO;
+import java.awt.AlphaComposite;
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
@@ -24,11 +26,28 @@ public final class HealthOverlay {
         }
         if (IMAGES[lightSaber] == null) {
             try {
-                IMAGES[lightSaber] = ImageIO.read(HealthOverlay.class.getResource("health_" + lightSaber + ".png"));
+                BufferedImage png = ImageIO.read(HealthOverlay.class.getResource("health_" + lightSaber + ".png"));
+                IMAGES[lightSaber] = toPremultiplied(png);
             } catch (IOException | IllegalArgumentException e) {
                 e.printStackTrace();
             }
         }
         return IMAGES[lightSaber];
+    }
+
+    /**
+     * Blending a full-screen translucent image onto the frame every frame is
+     * far cheaper when the image stores premultiplied alpha, so convert once.
+     */
+    private static BufferedImage toPremultiplied(BufferedImage png) {
+        BufferedImage img = new BufferedImage(png.getWidth(), png.getHeight(), BufferedImage.TYPE_INT_ARGB_PRE);
+        Graphics2D g = img.createGraphics();
+        try {
+            g.setComposite(AlphaComposite.Src);
+            g.drawImage(png, 0, 0, null);
+        } finally {
+            g.dispose();
+        }
+        return img;
     }
 }
