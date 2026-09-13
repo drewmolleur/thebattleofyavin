@@ -25,6 +25,22 @@ public final class FrameStats {
     private FrameStats() {
     }
 
+    private static long lastStallReport;
+
+    /**
+     * Reports something that took long enough to be felt as a hitch. Always
+     * printed (at most a few times a second) so a stall can be traced without
+     * enabling the full readout.
+     */
+    public static synchronized void stall(String what) {
+        long now = System.currentTimeMillis();
+        if (now - lastStallReport < 250) {
+            return;
+        }
+        lastStallReport = now;
+        System.out.println("stall: " + what);
+    }
+
     static void renderDone(long nanos) {
         if (ENABLED) {
             renders.incrementAndGet();

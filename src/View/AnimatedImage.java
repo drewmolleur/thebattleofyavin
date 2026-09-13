@@ -33,6 +33,17 @@ public class AnimatedImage {
     private static final int DEFAULT_DELAY_MS = 100;
     /** Stop decoding when nobody has drawn this image for this long. */
     private static final long IDLE_STOP_NANOS = 2_000_000_000L;
+    /**
+     * Playback speed relative to the timing stored in the files. Java's old
+     * decoder spent the decode time and then slept for the frame delay, so it
+     * showed these GIFs at about half their stored rate, and the game's
+     * countdowns (and the length of the non-looping clips) were tuned to
+     * that. 1.0 would play the files at their stored rate.
+     * Override with -Dyavin.gif.speed=<factor>.
+     */
+    private static final double SPEED = Double.parseDouble(System.getProperty("yavin.gif.speed", "0.5"));
+    /** Decoding a frame slower than this is reported as a stall. */
+    private static final long STALL_REPORT_NANOS = 150_000_000L;
 
     private static final Map<String, WeakReference<AnimatedImage>> CACHE = new HashMap<>();
 
@@ -128,6 +139,7 @@ public class AnimatedImage {
                     return; // nobody is looking; draw() restarts us
                 }
                 // Decode the frame that follows the one currently shown.
+                long decodeStart = System.nanoTime();
                 int nextDelay = decoder.nextFrame();
                 if (nextDelay < 0) {
                     if (loopsRemaining == 0) {
@@ -145,6 +157,10 @@ public class AnimatedImage {
                     }
                 }
                 int target = copyCanvas(freeBuffer());
+                long decodeNanos = System.nanoTime() - decodeStart;
+                if (decodeNanos > STALL_REPORT_NANOS) {
+                    FrameStats.stall("decoding one frame of " + name() + " took " + decodeNanos / 1_000_000 + " ms");
+                }
 
                 // Show it once the frame before it has been on screen for its delay.
                 due += (long) delay * 1_000_000L;
@@ -199,6 +215,12 @@ public class AnimatedImage {
     }
 
     static int normaliseDelay(int delayMs) {
-        return delayMs < MIN_DELAY_MS ? DEFAULT_DELAY_MS : delayMs;
+        int ms = delayMs < MIN_DELAY_MS ? DEFAULT_DELAY_MS : delayMs;
+        return (int) Math.round(ms / SPEED);
+    }
+
+    private String name() {
+        String f = location.getFile();
+        return f.substring(f.lastIndexOf('/') + 1);
     }
 }

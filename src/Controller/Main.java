@@ -194,11 +194,17 @@ public class Main {
             if (now - nextUpdate > 5 * updateInterval) {
                 nextUpdate = now; // stalled (e.g. loading a scene): don't try to catch up
             }
+            String stateBefore = win.canvas.backgroundState.getClass().getSimpleName();
             while (now >= nextUpdate) {
                 playerInputEventQueue.processInputEvents();
                 processCollisions();
                 gameData.update();
                 nextUpdate += updateInterval;
+            }
+            long updateMillis = System.currentTimeMillis() - startTime;
+            if (updateMillis > 150) {
+                View.FrameStats.stall("game update took " + updateMillis + " ms in " + stateBefore
+                        + " (now " + win.canvas.backgroundState.getClass().getSimpleName() + ")");
             }
             win.canvas.render();
             sleepUntilNextFrame(startTime);

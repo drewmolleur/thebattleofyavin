@@ -59,7 +59,11 @@ public class MyCanvas extends JPanel {
         synchronized (bufferLock) {
             latest = target;
         }
-        FrameStats.renderDone(System.nanoTime() - start);
+        long nanos = System.nanoTime() - start;
+        FrameStats.renderDone(nanos);
+        if (nanos > 150_000_000L) {
+            FrameStats.stall("drawing one frame took " + nanos / 1_000_000 + " ms in " + backgroundState.getClass().getSimpleName());
+        }
         repaint();
     }
 
@@ -90,7 +94,11 @@ public class MyCanvas extends JPanel {
                 painting = -1;
             }
         }
-        FrameStats.paintDone(System.nanoTime() - start);
+        long nanos = System.nanoTime() - start;
+        FrameStats.paintDone(nanos);
+        if (nanos > 150_000_000L) {
+            FrameStats.stall("putting a frame on screen took " + nanos / 1_000_000 + " ms");
+        }
     }
 
     /**

@@ -38,8 +38,12 @@ public class GameData {
         }
 
         if(lightSaber == 3 && defense == false) {
-            repair = true;
-            new CountDown_Repair(1);
+            if (!repair) {           // prompt once, not on every update
+                repair = true;
+                new CountDown_Repair(1);
+            }
+        } else {
+            repair = false;
         }
 
         if(CountDown_UseTheForce.count == 0 ){
