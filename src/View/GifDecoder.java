@@ -32,6 +32,8 @@ final class GifDecoder implements Closeable {
 
     /** Composited image, one ARGB int per pixel; 0 means "nothing drawn here". */
     final int[] canvas;
+    /** Compressed size of the most recently decoded frame's pixel data, in bytes. */
+    int lastFrameDataBytes;
 
     private final int[] globalPalette;
     private final int backgroundIndex;
@@ -297,6 +299,7 @@ final class GifDecoder implements Closeable {
     private void decodeLzw(int pixelCount) throws IOException {
         int minCodeSize = readByte();
         int dataLength = readSubBlocks();
+        lastFrameDataBytes = dataLength;
 
         int clear = 1 << minCodeSize;
         int endOfInfo = clear + 1;

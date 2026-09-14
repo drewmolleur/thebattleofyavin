@@ -66,23 +66,41 @@ public class GameData {
         ArrayList<GameFigure> remove = new ArrayList<>();
         for (var fig : fixedObjects) {
             if (fig.done) remove.add(fig);
-            else fig.update();
+            else { fig.rememberPosition(); fig.update(); }
         }
         fixedObjects.removeAll(remove);
 
         remove.clear();
         for (var fig : friendObjects) {
             if (fig.done) remove.add(fig);
-            else fig.update();
+            else { fig.rememberPosition(); fig.update(); }
         }
         friendObjects.removeAll(remove);
 
         remove.clear();
         for (var fig : enemyObjects) {
             if (fig.done) remove.add(fig);
-            else fig.update();
+            else { fig.rememberPosition(); fig.update(); }
         }
         enemyObjects.removeAll(remove);
+    }
+
+    /**
+     * Updates happen UPDATES_PER_SECOND times a second but frames are drawn
+     * more often. Before drawing, move every figure to where it was
+     * {@code alpha} (0..1) of the way from its previous update position to
+     * its current one, so motion looks smooth; restore afterwards.
+     */
+    public void interpolatePositions(float alpha) {
+        for (var fig : fixedObjects) fig.interpolatePosition(alpha);
+        for (var fig : friendObjects) fig.interpolatePosition(alpha);
+        for (var fig : enemyObjects) fig.interpolatePosition(alpha);
+    }
+
+    public void restorePositions() {
+        for (var fig : fixedObjects) fig.restorePosition();
+        for (var fig : friendObjects) fig.restorePosition();
+        for (var fig : enemyObjects) fig.restorePosition();
     }
     public void clear() {
         fixedObjects.clear();

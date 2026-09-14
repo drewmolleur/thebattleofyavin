@@ -34,14 +34,17 @@ public class AnimatedImage {
     /** Stop decoding when nobody has drawn this image for this long. */
     private static final long IDLE_STOP_NANOS = 2_000_000_000L;
     /**
-     * Playback speed relative to the timing stored in the files. Java's old
-     * decoder spent the decode time and then slept for the frame delay, so it
-     * showed these GIFs at about half their stored rate, and the game's
-     * countdowns (and the length of the non-looping clips) were tuned to
-     * that. 1.0 would play the files at their stored rate.
-     * Override with -Dyavin.gif.speed=<factor>.
+     * Extra display time per 100 KB of compressed frame data, in milliseconds.
+     *
+     * Java's old decoder showed each frame for its stored delay *plus* the
+     * time it took to decode it, which grows with the amount of data in the
+     * frame. So detailed footage played at roughly half its stored rate while
+     * near-black frames (a fade-in) played at almost full rate, and the game's
+     * countdowns and clip lengths were tuned to that pacing. This reproduces
+     * it: a typical 300 KB frame with a 30 ms delay is shown for about 60 ms.
+     * Set -Dyavin.gif.slowdown=0 to play the files at their stored rate.
      */
-    private static final double SPEED = Double.parseDouble(System.getProperty("yavin.gif.speed", "0.5"));
+    private static final double SLOWDOWN_MS_PER_100KB = Double.parseDouble(System.getProperty("yavin.gif.slowdown", "10"));
     /** Decoding a frame slower than this is reported as a stall. */
     private static final long STALL_REPORT_NANOS = 150_000_000L;
 
@@ -90,7 +93,7 @@ public class AnimatedImage {
             if (delay < 0) {
                 finished = true;
             } else {
-                pendingDelay = normaliseDelay(delay);
+                pendingDelay = displayTime(delay, decoder.lastFrameDataBytes);
                 publish(copyCanvas(freeBuffer()));
             }
         } catch (IOException e) {
@@ -174,7 +177,7 @@ public class AnimatedImage {
                 }
                 publish(target);
                 FrameStats.backgroundFrameDone();
-                delay = normaliseDelay(nextDelay);
+                delay = displayTime(nextDelay, decoder.lastFrameDataBytes);
                 pendingDelay = delay;
             }
         } catch (IOException e) {
@@ -214,9 +217,10 @@ public class AnimatedImage {
         }
     }
 
-    static int normaliseDelay(int delayMs) {
+    /** How long to show a frame: its stored delay plus the emulated decode time. */
+    static int displayTime(int delayMs, int frameDataBytes) {
         int ms = delayMs < MIN_DELAY_MS ? DEFAULT_DELAY_MS : delayMs;
-        return (int) Math.round(ms / SPEED);
+        return ms + (int) Math.round(frameDataBytes / 102400.0 * SLOWDOWN_MS_PER_100KB);
     }
 
     private String name() {

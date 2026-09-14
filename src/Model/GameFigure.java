@@ -19,8 +19,39 @@ public abstract class GameFigure {
     public int x;
     public int y;
 
+    // Position at the previous update, for smooth rendering between updates.
+    private float prevX, prevY;
+    private boolean prevValid = false;
+    private float savedX, savedY;
+
     public GameFigure(float x, float y) {
         location = new Point2D.Float(x, y);
+    }
+
+    /** Called before each update: the current position becomes the previous one. */
+    public void rememberPosition() {
+        prevX = location.x;
+        prevY = location.y;
+        prevValid = true;
+    }
+
+    /**
+     * Temporarily moves the figure to where it was {@code alpha} of the way
+     * between the previous update and the current one, for drawing a frame
+     * that falls between updates. Undo with {@link #restorePosition()}.
+     */
+    public void interpolatePosition(float alpha) {
+        savedX = location.x;
+        savedY = location.y;
+        if (prevValid) {
+            location.x = prevX + (savedX - prevX) * alpha;
+            location.y = prevY + (savedY - prevY) * alpha;
+        }
+    }
+
+    public void restorePosition() {
+        location.x = savedX;
+        location.y = savedY;
     }
 
     public GameFigure() {

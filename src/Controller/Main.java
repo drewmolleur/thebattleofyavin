@@ -24,9 +24,11 @@ public class Main {
     // update rate *is* the game speed. Rendering stays at FPS regardless.
     // Override with -Dyavin.speed=<updates per second>.
     public static int UPDATES_PER_SECOND = Integer.getInteger("yavin.speed", 30);
+    private static final long launchedAt = System.currentTimeMillis();
     public static int lightSaber = 6;
 
     public static void main(String[] args) {
+        final long launched = launchedAt;
 
         // INITIALIZE AUDIO ELEMENTS
         try {
@@ -134,16 +136,20 @@ public class Main {
             System.err.println(e.getMessage());
         }
 
+        System.out.println("startup: sounds loaded after " + (System.currentTimeMillis() - launched) + " ms");
+
         // INITIALIZE GAME WINDOW
         win = new MyWindow();
         win.init();
         win.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         win.setResizable(false);
         win.setVisible(true);
+        System.out.println("startup: window shown after " + (System.currentTimeMillis() - launched) + " ms");
         new CountDown(3);
         gameData = new GameData();
         playerInputEventQueue = new PlayerInputEventQueue();
         onStart.start();
+        System.out.println("startup: intro sound started after " + (System.currentTimeMillis() - launched) + " ms");
         startScreen();
         initGame();
         gameLoop();
@@ -153,9 +159,14 @@ public class Main {
         System.out.println("\n STAR WARS: The Battle Of Yavin \n Drew Molleur    |    Fall 2019");
         Font font = new Font("Courier New", Font.PLAIN, 40);
         gameData.friendObjects.add(new Text("OBJECT ORIENTED SOFTWARE DESIGN & CONSTRUCTION - DR.SUNG - FALL 2019", 150, 775, Color.WHITE, font));
+        boolean firstFrame = true;
         while (!running) {
             long startTime = System.currentTimeMillis();
             Main.win.canvas.render();
+            if (firstFrame) {
+                System.out.println("startup: first frame drawn after " + (System.currentTimeMillis() - launchedAt) + " ms");
+                firstFrame = false;
+            }
             sleepUntilNextFrame(startTime);
         }
     }
@@ -206,7 +217,15 @@ public class Main {
                 View.FrameStats.stall("game update took " + updateMillis + " ms in " + stateBefore
                         + " (now " + win.canvas.backgroundState.getClass().getSimpleName() + ")");
             }
-            win.canvas.render();
+            // Draw the figures part-way between the last update and the next one.
+            long lastUpdate = nextUpdate - updateInterval;
+            float alpha = Math.max(0f, Math.min(1f, (System.nanoTime() - lastUpdate) / (float) updateInterval));
+            gameData.interpolatePositions(alpha);
+            try {
+                win.canvas.render();
+            } finally {
+                gameData.restorePositions();
+            }
             sleepUntilNextFrame(startTime);
         }
     }
