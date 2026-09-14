@@ -30,6 +30,7 @@ public class Main {
 
     public static void main(String[] args) {
         final long launched = launchedAt;
+        warmUpFonts();
 
         // INITIALIZE AUDIO ELEMENTS
         try {
@@ -229,6 +230,30 @@ public class Main {
             }
             sleepUntilNextFrame(startTime);
         }
+    }
+
+    /**
+     * The first time text is drawn with a font named by family ("Courier New"
+     * on the title screen), Java on macOS enumerates every installed font,
+     * which can take several seconds and freezes the game while the system
+     * shows the spinning wait cursor. Do that work on a background thread
+     * right at launch, while the intro footage plays, so the title screen
+     * appears without a pause.
+     */
+    static void warmUpFonts() {
+        Thread warmUp = new Thread(() -> {
+            java.awt.image.BufferedImage scratch = new java.awt.image.BufferedImage(1, 1, java.awt.image.BufferedImage.TYPE_INT_RGB);
+            Graphics2D g = scratch.createGraphics();
+            try {
+                g.setFont(new Font("Courier New", Font.PLAIN, 40));
+                g.drawString("warm-up", 0, 0);
+            } finally {
+                g.dispose();
+            }
+            System.out.println("startup: fonts ready after " + (System.currentTimeMillis() - launchedAt) + " ms");
+        }, "font-warm-up");
+        warmUp.setDaemon(true);
+        warmUp.start();
     }
 
     // Wait out the rest of the frame so the loop runs at FPS frames per second.
