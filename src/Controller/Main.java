@@ -19,7 +19,8 @@ public class Main {
     public static boolean running = false;
     public static int INDEX_MOUSE_POINTER = 0;
     public static int INDEX_SHOOTER = 1;
-    public static int FPS = 60;
+    // Frames drawn per second. Override with -Dyavin.fps=<rate>.
+    public static int FPS = Integer.getInteger("yavin.fps", 60);
     // Movement in this game is defined per update (pixels per step), so the
     // update rate *is* the game speed. Rendering stays at FPS regardless.
     // Override with -Dyavin.speed=<updates per second>.

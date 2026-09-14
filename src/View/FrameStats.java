@@ -3,8 +3,8 @@ package View;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * Optional performance readout. Run the game with -Dyavin.stats=true and a
- * line like the one below is printed every two seconds:
+ * Performance readout, printed every five seconds (every two with
+ * -Dyavin.stats=true):
  *
  *   stats: game loop 60.0 fps (render 3.2 ms) | screen paints 59.5/s (1.1 ms) | background frames 24.5/s
  *
@@ -14,7 +14,8 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public final class FrameStats {
 
-    public static final boolean ENABLED = Boolean.getBoolean("yavin.stats");
+    public static final boolean ENABLED = true;
+    private static final double INTERVAL_SECONDS = Boolean.getBoolean("yavin.stats") ? 2.0 : 5.0;
 
     private static final AtomicLong renders = new AtomicLong();
     private static final AtomicLong renderNanos = new AtomicLong();
@@ -70,7 +71,7 @@ public final class FrameStats {
     }
 
     private static void reportLoop() {
-        final double intervalSeconds = 2.0;
+        final double intervalSeconds = INTERVAL_SECONDS;
         while (true) {
             try {
                 Thread.sleep((long) (intervalSeconds * 1000));
